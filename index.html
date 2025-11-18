@@ -40,7 +40,7 @@
         }
 
         /* --- Toolbar Buttons --- */
-        .tool-btn, .format-btn {
+        .tool-btn, .format-btn, .font-select {
             background-color: #5d98bc;
             color: white;
             border: none;
@@ -64,13 +64,19 @@
             font-weight: bold;
             font-size: 20px;
         }
-        /* Styling for the Font Size Dropdown */
-        #font-size-select {
+        /* Styling for the Font Dropdowns */
+        #font-size-select, #font-family-select {
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-right: 10px;
             font-size: 16px;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+        }
+        #font-family-select {
+            min-width: 120px;
         }
 
         /* Styling for the Save to PDF Button */
@@ -92,11 +98,11 @@
             margin: 0 auto 20px auto;
             max-width: 900px;
             
-            /* Urdu Specific Styles */
+            /* Urdu Default Styles */
             direction: rtl; 
             text-align: right;
             font-family: 'Jameel Noori Nastaleeq', 'Simplified Arabic', sans-serif;
-            font-size: 24px; /* Default size */
+            font-size: 24px; 
             line-height: 1.8;
             outline: none; 
             word-wrap: break-word; 
@@ -198,6 +204,10 @@
         <div id="formatting-toolbar">
             <button class="format-btn" id="bold-btn" onclick="formatDoc('bold')">**B**</button> 
             
+            <select id="font-family-select" title="Font Family">
+                <option value="" disabled selected>فونٹ</option>
+            </select>
+            
             <select id="font-size-select" title="Font Size">
                 <option value="" disabled selected>سائز (px)</option>
             </select>
@@ -287,6 +297,7 @@
 <script>
     const editor = document.getElementById('document-editor');
     const keys = document.querySelectorAll('.urdu-key');
+    const fontFamilySelect = document.getElementById('font-family-select');
 
     // --- 1. Phonetic Key Mapping (Latin to Urdu) ---
     const phoneticMap = {
@@ -360,12 +371,12 @@
         document.execCommand(command, false, null);
     }
 
-    // --- NEW: Font Size Logic ---
+    // --- 6. Font Size and Family Logic ---
     
-    // Function to populate the font size dropdown with px values
+    // Font Size Options
     function createFontSizeOptions() {
         const select = document.getElementById('font-size-select');
-        for (let i = 8; i <= 100; i += (i < 24 ? 2 : 4)) { // Smaller steps for smaller fonts
+        for (let i = 8; i <= 100; i += (i < 24 ? 2 : 4)) {
             const option = document.createElement('option');
             option.value = i + 'px';
             option.textContent = i + ' px';
@@ -373,40 +384,86 @@
         }
     }
     
-    // Execute population when the document loads
-    document.addEventListener('DOMContentLoaded', createFontSizeOptions);
+    // Font Family Options
+    function createFontFamilyOptions() {
+        const fonts = [
+            { name: 'جمیل نوری نستعلیق (Urdu)', value: 'Jameel Noori Nastaleeq, serif' },
+            { name: 'Arial (Standard)', value: 'Arial, sans-serif' },
+            { name: 'Times New Roman (Standard)', value: 'Times New Roman, serif' },
+            { name: 'Simplified Arabic (Arabic)', value: 'Simplified Arabic, sans-serif' },
+            { name: 'Courier New (Monospace)', value: 'Courier New, monospace' }
+        ];
+
+        fonts.forEach(font => {
+            const option = document.createElement('option');
+            option.value = font.value;
+            option.textContent = font.name;
+            option.style.fontFamily = font.value;
+            option.style.direction = font.value.includes('Nastaleeq') || font.value.includes('Arabic') ? 'rtl' : 'ltr';
+            fontFamilySelect.appendChild(option);
+        });
+    }
+
+    // Initialize dropdowns when the document loads
+    document.addEventListener('DOMContentLoaded', () => {
+        createFontSizeOptions();
+        createFontFamilyOptions();
+        document.execCommand('styleWithCSS', false, true); 
+    });
     
-    // Function to apply the selected font size using CSS (more reliable for 'px')
+    // Apply Font Size
     document.getElementById('font-size-select').addEventListener('change', function() {
-        const sizeValue = this.value; // e.g., "24px"
+        const sizeValue = this.value; 
         if (sizeValue) {
             editor.focus();
             
-            // Execute the font size change. We use insertHTML and span for reliable CSS application.
-            // This relies on the browser supporting execCommand('insertHTML')
-            document.execCommand('insertHTML', false, `<span style="font-size: ${sizeValue};">` + document.getSelection().toString() + '</span>');
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const content = range.extractContents();
+                
+                const span = document.createElement('span');
+                span.style.fontSize = sizeValue;
+                span.appendChild(content);
+                
+                range.insertNode(span);
+                selection.removeAllRanges();
+            }
             
-            // To prevent the dropdown from keeping the selected value
+            this.selectedIndex = 0; 
+        }
+    });
+
+    // Apply Font Family (Standard way using fontName command)
+    fontFamilySelect.addEventListener('change', function() {
+        const fontName = this.value; 
+        if (fontName) {
+            editor.focus();
+            document.execCommand('fontName', false, fontName);
+            
             this.selectedIndex = 0; 
         }
     });
 
 
-    // --- 6. Conversion Function ---
+    // --- 7. Conversion Function ---
     const CM_TO_PX_RATIO = 37.79527559; 
     function cmToPx(cm) {
         return Math.round(cm * CM_TO_PX_RATIO);
     }
     
-    // --- 7. Rich Content Insertion Functions ---
+    // --- 8. Rich Content Insertion Functions ---
 
     function insertImage() {
-        // 1. Get dimensions first
-        const heightCm = prompt("تصویر کی اونچائی سینٹی میٹر میں درج کریں (Enter image height in cm):", "5");
-        const widthCm = prompt("تصویر کی چوڑائی سینٹی میٹر میں درج کریں (Enter image width in cm):", "5");
+        // 1. Get dimensions from a single prompt
+        const dimInput = prompt("اونچائی اور چوڑائی سینٹی میٹر میں درج کریں، کوما سے الگ کریں (e.g., 5, 8):", "5, 5");
+        
+        if (!dimInput) return;
 
-        const height = parseFloat(heightCm);
-        const width = parseFloat(widthCm);
+        const dims = dimInput.split(',').map(d => parseFloat(d.trim()));
+        
+        const height = dims[0];
+        const width = dims.length > 1 ? dims[1] : height; // Use height as width if width is missing
 
         if (isNaN(height) || height <= 0 || isNaN(width) || width <= 0) {
             alert("اونچائی اور چوڑائی کی درست قدریں درج کریں (Please enter valid positive numbers for dimensions).");
@@ -448,15 +505,20 @@
         input.click();
     }
 
+    // --- UPDATED: Insert Table function for single prompt dimension input ---
     function insertTable() {
-        const rowsInput = prompt("کتنی قطاریں درکار ہیں؟ (Enter number of rows):", "3");
-        const colsInput = prompt("کتنے کالم درکار ہیں؟ (Enter number of columns):", "3");
+        // 1. Get dimensions from a single prompt
+        const dimInput = prompt("قطاریں اور کالموں کی تعداد درج کریں، کوما سے الگ کریں (e.g., 4, 3):", "3, 3");
+        
+        if (!dimInput) return;
 
-        const rows = parseInt(rowsInput);
-        const cols = parseInt(colsInput);
+        const dims = dimInput.split(',').map(d => parseInt(d.trim()));
+        
+        const rows = dims[0];
+        const cols = dims.length > 1 ? dims[1] : dims[0]; // If columns are missing, assume rows=cols
 
         if (isNaN(rows) || rows <= 0 || isNaN(cols) || cols <= 0) {
-            alert("قطاروں اور کالموں کی تعداد درست درج کریں (Please enter valid number of rows and columns).");
+            alert("قطاروں اور کالموں کی درست تعداد درج کریں (Please enter valid positive numbers for rows and columns).");
             return;
         }
 
@@ -464,12 +526,14 @@
             <table border="1" style="width: 100%; margin: 15px 0; border-collapse: collapse; text-align: right; direction: rtl;">
         `;
         
+        // Add Header Row (always)
         tableHTML += '<tr>';
         for (let i = 1; i <= cols; i++) {
             tableHTML += `<th style="padding: 10px; background-color: #eee;">سرخی ${i}</th>`;
         }
         tableHTML += '</tr>';
 
+        // Add Data Rows (start from 1 because header is row 0)
         for (let r = 1; r < rows; r++) { 
             tableHTML += '<tr>';
             for (let c = 1; c <= cols; c++) {
@@ -494,7 +558,7 @@
         document.execCommand('insertHTML', false, shapeHTML);
     }
 
-    // --- 8. Save Functions ---
+    // --- 9. Save Functions ---
     
     function saveDocument() {
         const content = editor.innerHTML;
