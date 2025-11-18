@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Urdu Document Editor</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- General Styling --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f9;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a5276;
+            font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
+            margin-bottom: 30px;
+        }
+
+        /* --- Document Editor Area --- */
+        #document-editor {
+            min-height: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            
+            /* Urdu Specific Styles */
+            direction: rtl; 
+            text-align: right;
+            font-family: 'Jameel Noori Nastaleeq', 'Simplified Arabic', sans-serif;
+            font-size: 24px;
+            line-height: 1.8;
+            outline: none; 
+            word-wrap: break-word; 
+        }
+        
+        [contenteditable]:empty::before {
+            content: attr(placeholder);
+            color: #aaa;
+            cursor: text;
+        }
+
+        /* --- Toolbar Buttons --- */
+        #toolbar {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        .tool-btn {
+            background-color: #5d98bc;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-left: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .tool-btn:hover {
+            background-color: #3b7496;
+        }
+
+        /* --- Virtual Keyboard Layout --- */
+        #keyboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end; 
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #e8eef2;
+            border: 1px solid #ddd;
+        }
+
+        .urdu-key {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            margin: 3px;
+            padding: 5px 10px; /* Adjusted padding to fit text + span */
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 24px; /* Slightly smaller for better fit */
+            font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
+            min-width: 45px;
+            text-align: center;
+            line-height: 1.2;
+            transition: background-color 0.1s, transform 0.1s;
+        }
+
+        /* Styling for the small Latin phonetic key inside the button */
+        .urdu-key span { 
+            display: block; 
+            font-size: 14px; 
+            font-family: Arial, sans-serif; 
+            color: #555; 
+            margin-top: 3px;
+        }
+
+        .urdu-key:hover {
+            background-color: #c9e0f0;
+        }
+
+        .urdu-key.space { width: 150px; }
+        .urdu-key.special { background-color: #f1c40f; font-size: 18px; }
+        .urdu-key.special:hover { background-color: #d8a70c; }
+
+    </style>
+</head>
+<body>
+
+    <h2>اردو آن لائن ڈاکومنٹ ایڈیٹر • Online Urdu Document Editor</h2>
+
+    <div id="toolbar">
+        <button class="tool-btn" onclick="insertImage()">🖼️ Image</button>
+        <button class="tool-btn" onclick="insertTable()">📅 Table</button>
+        <button class="tool-btn" onclick="insertShape()">⬛ Shape/Box</button>
+        <button class="tool-btn" onclick="saveDocument()">💾 Save Text</button>
+    </div>
+
+    <div 
+        id="document-editor" 
+        contenteditable="true" 
+        dir="rtl" 
+        placeholder="یہاں لکھنا شروع کریں... Start writing here. Use your Latin keyboard phonetically (a=ا, p=پ, etc.)"
+    ></div>
+
+    <div id="keyboard-container" dir="rtl">
+        
+        <button class="urdu-key" data-char="ا">ا<span>a</span></button>
+        <button class="urdu-key" data-char="آ">آ<span>A</span></button>
+        <button class="urdu-key" data-char="ب">ب<span>b</span></button>
+        <button class="urdu-key" data-char="پ">پ<span>p</span></button>
+        <button class="urdu-key" data-char="ت">ت<span>t</span></button>
+        <button class="urdu-key" data-char="ٹ">ٹ<span>T</span></button>
+        <button class="urdu-key" data-char="ث">ث<span>C</span></button>
+        <button class="urdu-key" data-char="ج">ج<span>j</span></button>
+        <button class="urdu-key" data-char="چ">چ<span>c</span></button>
+        <button class="urdu-key" data-char="ح">ح<span>H</span></button>
+        <button class="urdu-key" data-char="خ">خ<span>K</span></button>
+        <button class="urdu-key" data-char="د">د<span>d</span></button>
+        <button class="urdu-key" data-char="ڈ">ڈ<span>D</span></button>
+        <button class="urdu-key" data-char="ذ">ذ<span>Z</span></button>
+        <button class="urdu-key" data-char="ر">ر<span>r</span></button>
+        <button class="urdu-key" data-char="ڑ">ڑ<span>R</span></button>
+        <button class="urdu-key" data-char="ز">ز<span>z</span></button>
+        <button class="urdu-key" data-char="ژ">ژ<span>x</span></button>
+        <button class="urdu-key" data-char="س">س<span>s</span></button>
+        <button class="urdu-key" data-char="ش">ش<span>S</span></button>
+        <button class="urdu-key" data-char="ص">ص<span>q</span></button>
+        <button class="urdu-key" data-char="ض">ض<span>X</span></button>
+        <button class="urdu-key" data-char="ط">ط<span>I</span></button>
+        <button class="urdu-key" data-char="ظ">ظ<span>O</span></button>
+        <button class="urdu-key" data-char="ع">ع<span>e</span></button>
+        <button class="urdu-key" data-char="غ">غ<span>G</span></button>
+        <button class="urdu-key" data-char="ف">ف<span>f</span></button>
+        <button class="urdu-key" data-char="ق">ق<span>Q</span></button>
+        <button class="urdu-key" data-char="ک">ک<span>k</span></button>
+        <button class="urdu-key" data-char="گ">گ<span>g</span></button>
+        <button class="urdu-key" data-char="ل">ل<span>l</span></button>
+        <button class="urdu-key" data-char="م">م<span>m</span></button>
+        <button class="urdu-key" data-char="ن">ن<span>n</span></button>
+        <button class="urdu-key" data-char="ں">ں<span>N</span></button>
+        <button class="urdu-key" data-char="و">و<span>w/u/v</span></button>
+        <button class="urdu-key" data-char="ہ">ہ<span>h</span></button>
+        <button class="urdu-key" data-char="ھ">ھ<span>Hh</span></button>
+        <button class="urdu-key" data-char="ی">ی<span>i/y</span></button>
+        <button class="urdu-key" data-char="ے">ے<span>Y/E</span></button>
+        <button class="urdu-key" data-char="ء">ء<span>'</span></button>
+        
+        <button class="urdu-key special" data-char="؟">؟<span>?</span></button>
+        <button class="urdu-key special" data-char="!">!<span>!</span></button>
+        <button class="urdu-key special" data-char="،">،<span>,</span></button>
+        <button class="urdu-key special" data-char="۔">۔<span>.</span></button>
+        
+        <button class="urdu-key special" data-char="۰">۰<span>0</span></button>
+        <button class="urdu-key special" data-char="۱">۱<span>1</span></button>
+        <button class="urdu-key special" data-char="۲">۲<span>2</span></button>
+        <button class="urdu-key special" data-char="۳">۳<span>3</span></button>
+        <button class="urdu-key special" data-char="۴">۴<span>4</span></button>
+        <button class="urdu-key special" data-char="۵">۵<span>5</span></button>
+        <button class="urdu-key special" data-char="۶">۶<span>6</span></button>
+        <button class="urdu-key special" data-char="۷">۷<span>7</span></button>
+        <button class="urdu-key special" data-char="۸">۸<span>8</span></button>
+        <button class="urdu-key special" data-char="۹">۹<span>9</span></button>
+
+        <button class="urdu-key space" data-char=" ">Space</button>
+        <button class="urdu-key special" onclick="document.execCommand('undo', false, null)">↩️ Undo</button>
+        <button class="urdu-key special" onclick="document.execCommand('delete', false, null)">❌ Backspace</button>
+        <button class="urdu-key special" data-char="\n">⏎ Enter</button>
+        
+    </div>
+
+<script>
+    const editor = document.getElementById('document-editor');
+    const keys = document.querySelectorAll('.urdu-key');
+
+    // --- 1. Phonetic Key Mapping (Latin to Urdu) ---
+    const phoneticMap = {
+        // Lowercase and Basic Mappings
+        'a': 'ا', 'b': 'ب', 'p': 'پ', 't': 'ت', 'j': 'ج', 'c': 'چ', 'H': 'ح', 
+        'k': 'ک', 'g': 'گ', 'l': 'ل', 'm': 'م', 'n': 'ن', 'd': 'د', 'r': 'ر', 
+        'z': 'ز', 's': 'س', 'S': 'ش', 'x': 'ص', 'f': 'ف', 'q': 'ق', 
+        'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ے',
+        'h': 'ہ', 
+        
+        // Aspirated and Taa/Daa/Raa with dot (Shifted keys)
+        'A': 'آ',   // Alif Madda (Shift+A)
+        'T': 'ٹ',   // Tta (Shift+T)
+        'D': 'ڈ',   // Ddal (Shift+D)
+        'R': 'ڑ',   // Rra (Shift+R)
+        'Z': 'ذ',   // Dhal (Shift+Z)
+        'X': 'ض',   // Zaad (Shift+X)
+        'I': 'ط',   // Toh (Shift+I)
+        'E': 'ع',   // Ain (Shift+E)
+        'G': 'غ',   // Ghain (Shift+G)
+        'N': 'ں',   // Noon Ghunnah (Shift+N)
+        'O': 'ؤ',   // Wao Hamza (Shift+O)
+        'Y': 'ے',   // Bari Ye (Shift+Y)
+        'C': 'ث',   // Sa (Shift+C)
+
+        // Special characters and Diacritics (using symbols/other keys)
+        "'": 'ء',   // Hamza
+        ';': '؛',   // Semicolon
+
+        // Punctuation and Digits
+        ',': '،', '.': '۔', '?': '؟', '!': '!',
+        '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', 
+        '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹',
+        ' ': ' ' // Space
+    };
+
+    // --- 2. Keyboard Input Logic (Virtual Buttons) ---
+    keys.forEach(key => {
+        key.addEventListener('click', () => {
+            const char = key.getAttribute('data-char');
+            if (char) {
+                editor.focus();
+                document.execCommand('insertText', false, char);
+            }
+        });
+    });
+
+    // --- 3. Physical Keyboard Typing Logic (Phonetic) ---
+    editor.addEventListener('keydown', (event) => {
+        let key = event.key;
+        let urduChar = null;
+
+        // Check for shifted/capital keys first
+        if (event.shiftKey) {
+            // Check for uppercase phonetic map (e.g., 'A' for Alif Madda)
+            if (phoneticMap.hasOwnProperty(key.toUpperCase())) {
+                 urduChar = phoneticMap[key.toUpperCase()];
+            } else if (key === 'h') {
+                urduChar = 'ھ'; // Do Chashmi Heh via Shift+h
+            }
+        } 
+        
+        // Check for standard/lowercase keys (unless already mapped by shift)
+        if (urduChar === null && phoneticMap.hasOwnProperty(key)) {
+            urduChar = phoneticMap[key];
+        }
+
+
+        // Only proceed if a valid Urdu character was mapped, and it's not a control key
+        if (urduChar !== null && key.length <= 1 && !event.ctrlKey && !event.altKey) {
+             // Prevent default browser action (like typing Latin 'a')
+            event.preventDefault(); 
+            document.execCommand('insertText', false, urduChar);
+        }
+    });
+
+
+    // --- 4. Rich Content Insertion Functions ---
+
+    function insertImage() {
+        const url = prompt("تصویر کا یو آر ایل درج کریں (Enter the image URL):");
+        if (url) {
+            editor.focus();
+            document.execCommand('insertImage', false, url);
+        }
+    }
+
+    function insertTable() {
+        const tableHTML = `
+            <table border="1" style="width: 100%; margin: 15px 0; border-collapse: collapse; text-align: right; direction: rtl;">
+                <tr>
+                    <th style="padding: 10px; background-color: #eee;">پہلی سرخی</th>
+                    <th style="padding: 10px; background-color: #eee;">دوسری سرخی</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">معلومات ایک</td>
+                    <td style="padding: 8px;">معلومات دو</td>
+                </tr>
+            </table>
+        `;
+        editor.focus();
+        document.execCommand('insertHTML', false, tableHTML);
+    }
+
+    function insertShape() {
+        const shapeHTML = `
+            <div style="border: 3px solid #1a5276; padding: 15px; margin: 15px; background-color: #e6f3fa; border-radius: 8px; font-weight: bold; width: fit-content; direction: rtl; display: inline-block;">
+                ضروری نوٹ: یہاں اہم معلومات لکھیں
+            </div>
+        `;
+        editor.focus();
+        document.execCommand('insertHTML', false, shapeHTML);
+    }
+
+    function saveDocument() {
+        const content = editor.innerHTML;
+        const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Urdu_Document.html';
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+        
+        alert("Document saved as Urdu_Document.html! (ڈاکومینٹ محفوظ ہو گیا)");
+    }
+
+</script>
+</body>
+</html>
