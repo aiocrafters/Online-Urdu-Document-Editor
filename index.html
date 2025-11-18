@@ -59,9 +59,23 @@
             font-size: 18px; 
         }
 
+        /* Styling for the Bold Button */
+        #bold-btn {
+            font-weight: bold;
+            font-size: 20px;
+        }
+        /* Styling for the Font Size Dropdown */
+        #font-size-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
         /* Styling for the Save to PDF Button */
         #pdf-btn {
-            background-color: #e74c3c; /* Red color for PDF */
+            background-color: #e74c3c; 
         }
         #pdf-btn:hover {
             background-color: #c0392b;
@@ -82,10 +96,15 @@
             direction: rtl; 
             text-align: right;
             font-family: 'Jameel Noori Nastaleeq', 'Simplified Arabic', sans-serif;
-            font-size: 24px;
+            font-size: 24px; /* Default size */
             line-height: 1.8;
             outline: none; 
             word-wrap: break-word; 
+        }
+
+        /* Style for selected images (for resizing handles) */
+        #document-editor img:focus {
+            outline: 2px solid #5d98bc;
         }
         
         [contenteditable]:empty::before {
@@ -123,7 +142,6 @@
             transition: background-color 0.1s, transform 0.1s;
         }
 
-        /* Styling for the small Latin phonetic key inside the button */
         .urdu-key span { 
             display: block; 
             font-size: 14px; 
@@ -140,7 +158,7 @@
         .urdu-key.special { background-color: #f1c40f; font-size: 18px; }
         .urdu-key.special:hover { background-color: #d8a70c; }
 
-        /* --- PRINT-SPECIFIC STYLES (Hide everything except the editor) --- */
+        /* --- PRINT-SPECIFIC STYLES (Content Only) */
         @media print {
             body > * {
                 visibility: hidden; 
@@ -170,7 +188,7 @@
     <div id="toolbars-container">
         
         <div id="rich-content-toolbar">
-            <button class="tool-btn" onclick="insertImage()">🖼️ Image</button>
+            <button class="tool-btn" onclick="insertImage()">🖼️ Insert Image (Local)</button>
             <button class="tool-btn" onclick="insertTable()">📅 Table</button>
             <button class="tool-btn" onclick="insertShape()">⬛ Shape/Box</button>
             <button class="tool-btn" id="pdf-btn" onclick="saveToPdf()">📄 Save to PDF</button> 
@@ -178,6 +196,12 @@
         </div>
 
         <div id="formatting-toolbar">
+            <button class="format-btn" id="bold-btn" onclick="formatDoc('bold')">**B**</button> 
+            
+            <select id="font-size-select" title="Font Size">
+                <option value="" disabled selected>سائز (px)</option>
+            </select>
+            
             <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️ Align Left</button>
             <button class="format-btn" onclick="formatDoc('justifyCenter')">━ Align Center</button>
             <button class="format-btn" onclick="formatDoc('justifyRight')">➡️ Align Right</button>
@@ -318,24 +342,112 @@
         }
     });
 
+    // --- 4. Image Resizing Toggles ---
+    editor.addEventListener('focus', () => {
+        document.execCommand('enableObjectResizing', true, 'true');
+    });
+    editor.addEventListener('blur', () => {
+        document.execCommand('enableObjectResizing', false, 'false');
+    });
+    editor.addEventListener('mouseup', () => {
+        document.execCommand('enableObjectResizing', true, 'true');
+    });
 
-    // --- 4. Formatting Command Function ---
+
+    // --- 5. Formatting Command Function ---
     function formatDoc(command) {
         editor.focus();
         document.execCommand(command, false, null);
     }
-    
-    // --- 5. Rich Content Insertion Functions ---
 
-    function insertImage() {
-        const url = prompt("تصویر کا یو آر ایل درج کریں (Enter the image URL):");
-        if (url) {
-            editor.focus();
-            document.execCommand('insertImage', false, url);
+    // --- NEW: Font Size Logic ---
+    
+    // Function to populate the font size dropdown with px values
+    function createFontSizeOptions() {
+        const select = document.getElementById('font-size-select');
+        for (let i = 8; i <= 100; i += (i < 24 ? 2 : 4)) { // Smaller steps for smaller fonts
+            const option = document.createElement('option');
+            option.value = i + 'px';
+            option.textContent = i + ' px';
+            select.appendChild(option);
         }
     }
+    
+    // Execute population when the document loads
+    document.addEventListener('DOMContentLoaded', createFontSizeOptions);
+    
+    // Function to apply the selected font size using CSS (more reliable for 'px')
+    document.getElementById('font-size-select').addEventListener('change', function() {
+        const sizeValue = this.value; // e.g., "24px"
+        if (sizeValue) {
+            editor.focus();
+            
+            // Execute the font size change. We use insertHTML and span for reliable CSS application.
+            // This relies on the browser supporting execCommand('insertHTML')
+            document.execCommand('insertHTML', false, `<span style="font-size: ${sizeValue};">` + document.getSelection().toString() + '</span>');
+            
+            // To prevent the dropdown from keeping the selected value
+            this.selectedIndex = 0; 
+        }
+    });
 
-    // --- UPDATED: Insert Table function to prompt for rows and columns ---
+
+    // --- 6. Conversion Function ---
+    const CM_TO_PX_RATIO = 37.79527559; 
+    function cmToPx(cm) {
+        return Math.round(cm * CM_TO_PX_RATIO);
+    }
+    
+    // --- 7. Rich Content Insertion Functions ---
+
+    function insertImage() {
+        // 1. Get dimensions first
+        const heightCm = prompt("تصویر کی اونچائی سینٹی میٹر میں درج کریں (Enter image height in cm):", "5");
+        const widthCm = prompt("تصویر کی چوڑائی سینٹی میٹر میں درج کریں (Enter image width in cm):", "5");
+
+        const height = parseFloat(heightCm);
+        const width = parseFloat(widthCm);
+
+        if (isNaN(height) || height <= 0 || isNaN(width) || width <= 0) {
+            alert("اونچائی اور چوڑائی کی درست قدریں درج کریں (Please enter valid positive numbers for dimensions).");
+            return;
+        }
+
+        const heightPx = cmToPx(height);
+        const widthPx = cmToPx(width);
+
+
+        // 2. Create file input element
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        
+        // Listen for file selection
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                // Convert file to Data URL
+                reader.onload = (readerEvent) => {
+                    const dataUrl = readerEvent.target.result;
+                    editor.focus();
+                    
+                    // Create an image element with specified dimensions
+                    const imgHTML = `<img src="${dataUrl}" style="height:${heightPx}px; width:${widthPx}px; margin: 5px; float: right;" alt="User Image">`;
+                    
+                    // Insert the image HTML
+                    document.execCommand('insertHTML', false, imgHTML);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Trigger the file selection dialog
+        input.click();
+    }
+
     function insertTable() {
         const rowsInput = prompt("کتنی قطاریں درکار ہیں؟ (Enter number of rows):", "3");
         const colsInput = prompt("کتنے کالم درکار ہیں؟ (Enter number of columns):", "3");
@@ -352,15 +464,13 @@
             <table border="1" style="width: 100%; margin: 15px 0; border-collapse: collapse; text-align: right; direction: rtl;">
         `;
         
-        // Add Header Row (optional, but helpful)
         tableHTML += '<tr>';
         for (let i = 1; i <= cols; i++) {
             tableHTML += `<th style="padding: 10px; background-color: #eee;">سرخی ${i}</th>`;
         }
         tableHTML += '</tr>';
 
-        // Add Data Rows
-        for (let r = 1; r < rows; r++) { // Start from 1 because header is row 0
+        for (let r = 1; r < rows; r++) { 
             tableHTML += '<tr>';
             for (let c = 1; c <= cols; c++) {
                 tableHTML += `<td style="padding: 8px;">معلومات</td>`;
@@ -384,9 +494,8 @@
         document.execCommand('insertHTML', false, shapeHTML);
     }
 
-    // --- 6. Save Functions ---
+    // --- 8. Save Functions ---
     
-    // Saves content as an HTML file
     function saveDocument() {
         const content = editor.innerHTML;
         const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
@@ -405,7 +514,6 @@
         alert("Document saved as Urdu_Document.html! (ڈاکومینٹ محفوظ ہو گیا)");
     }
     
-    // Triggers the browser's print dialog to save as PDF (Content Only)
     function saveToPdf() {
         editor.focus(); 
         alert("برائے مہربانی پرنٹ مینیو میں 'Save as PDF' کا انتخاب کریں۔\nPlease select 'Save as PDF' in the print menu.");
