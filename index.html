@@ -24,6 +24,50 @@
             margin-bottom: 30px;
         }
 
+        /* --- Toolbars Container --- */
+        #toolbars-container {
+            max-width: 900px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        #rich-content-toolbar, #formatting-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        /* --- Toolbar Buttons --- */
+        .tool-btn, .format-btn {
+            background-color: #5d98bc;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-right: 5px; 
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .tool-btn:hover, .format-btn:hover {
+            background-color: #3b7496;
+        }
+        .format-btn {
+            padding: 8px 12px;
+            font-size: 18px; 
+        }
+
+        /* Styling for the Save to PDF Button */
+        #pdf-btn {
+            background-color: #e74c3c; /* Red color for PDF */
+        }
+        #pdf-btn:hover {
+            background-color: #c0392b;
+        }
+
+
         /* --- Document Editor Area --- */
         #document-editor {
             min-height: 400px;
@@ -31,7 +75,8 @@
             border: 1px solid #ccc;
             background-color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto;
+            max-width: 900px;
             
             /* Urdu Specific Styles */
             direction: rtl; 
@@ -47,26 +92,6 @@
             content: attr(placeholder);
             color: #aaa;
             cursor: text;
-        }
-
-        /* --- Toolbar Buttons --- */
-        #toolbar {
-            margin-bottom: 15px;
-            text-align: right;
-        }
-        .tool-btn {
-            background-color: #5d98bc;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            margin-left: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.2s;
-        }
-        .tool-btn:hover {
-            background-color: #3b7496;
         }
 
         /* --- Virtual Keyboard Layout --- */
@@ -87,10 +112,10 @@
             color: #333;
             border: 1px solid #ccc;
             margin: 3px;
-            padding: 5px 10px; /* Adjusted padding to fit text + span */
+            padding: 5px 10px;
             cursor: pointer;
             border-radius: 4px;
-            font-size: 24px; /* Slightly smaller for better fit */
+            font-size: 24px;
             font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
             min-width: 45px;
             text-align: center;
@@ -115,24 +140,58 @@
         .urdu-key.special { background-color: #f1c40f; font-size: 18px; }
         .urdu-key.special:hover { background-color: #d8a70c; }
 
+        /* --- PRINT-SPECIFIC STYLES (Hide everything except the editor) --- */
+        @media print {
+            body > * {
+                visibility: hidden; 
+            }
+            #document-editor, #document-editor * {
+                visibility: visible; 
+                border: none !important; 
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                max-width: 100%;
+            }
+            #document-editor {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
 
     <h2>اردو آن لائن ڈاکومنٹ ایڈیٹر • Online Urdu Document Editor</h2>
+    
+    <div id="toolbars-container">
+        
+        <div id="rich-content-toolbar">
+            <button class="tool-btn" onclick="insertImage()">🖼️ Image</button>
+            <button class="tool-btn" onclick="insertTable()">📅 Table</button>
+            <button class="tool-btn" onclick="insertShape()">⬛ Shape/Box</button>
+            <button class="tool-btn" id="pdf-btn" onclick="saveToPdf()">📄 Save to PDF</button> 
+            <button class="tool-btn" onclick="saveDocument()">💾 Save HTML</button>
+        </div>
 
-    <div id="toolbar">
-        <button class="tool-btn" onclick="insertImage()">🖼️ Image</button>
-        <button class="tool-btn" onclick="insertTable()">📅 Table</button>
-        <button class="tool-btn" onclick="insertShape()">⬛ Shape/Box</button>
-        <button class="tool-btn" onclick="saveDocument()">💾 Save Text</button>
+        <div id="formatting-toolbar">
+            <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️ Align Left</button>
+            <button class="format-btn" onclick="formatDoc('justifyCenter')">━ Align Center</button>
+            <button class="format-btn" onclick="formatDoc('justifyRight')">➡️ Align Right</button>
+            <button class="format-btn" onclick="formatDoc('justifyFull')">Ξ Justify</button>
+            <button class="format-btn" onclick="formatDoc('insertUnorderedList')">• Bullets</button>
+            <button class="format-btn" onclick="formatDoc('insertOrderedList')"># Numbering</button>
+        </div>
     </div>
-
+    
     <div 
         id="document-editor" 
         contenteditable="true" 
         dir="rtl" 
-        placeholder="یہاں لکھنا شروع کریں... Start writing here. Use your Latin keyboard phonetically (a=ا, p=پ, etc.)"
+        placeholder="یہاں لکھنا شروع کریں... Use your Latin keyboard phonetically (a=ا, p=پ, etc.)"
     ></div>
 
     <div id="keyboard-container" dir="rtl">
@@ -207,37 +266,22 @@
 
     // --- 1. Phonetic Key Mapping (Latin to Urdu) ---
     const phoneticMap = {
-        // Lowercase and Basic Mappings
         'a': 'ا', 'b': 'ب', 'p': 'پ', 't': 'ت', 'j': 'ج', 'c': 'چ', 'H': 'ح', 
         'k': 'ک', 'g': 'گ', 'l': 'ل', 'm': 'م', 'n': 'ن', 'd': 'د', 'r': 'ر', 
         'z': 'ز', 's': 'س', 'S': 'ش', 'x': 'ص', 'f': 'ف', 'q': 'ق', 
         'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ے',
         'h': 'ہ', 
         
-        // Aspirated and Taa/Daa/Raa with dot (Shifted keys)
-        'A': 'آ',   // Alif Madda (Shift+A)
-        'T': 'ٹ',   // Tta (Shift+T)
-        'D': 'ڈ',   // Ddal (Shift+D)
-        'R': 'ڑ',   // Rra (Shift+R)
-        'Z': 'ذ',   // Dhal (Shift+Z)
-        'X': 'ض',   // Zaad (Shift+X)
-        'I': 'ط',   // Toh (Shift+I)
-        'E': 'ع',   // Ain (Shift+E)
-        'G': 'غ',   // Ghain (Shift+G)
-        'N': 'ں',   // Noon Ghunnah (Shift+N)
-        'O': 'ؤ',   // Wao Hamza (Shift+O)
-        'Y': 'ے',   // Bari Ye (Shift+Y)
-        'C': 'ث',   // Sa (Shift+C)
+        'A': 'آ',   'T': 'ٹ',   'D': 'ڈ',   'R': 'ڑ',   'Z': 'ذ',   'X': 'ض',   
+        'I': 'ط',   'E': 'ع',   'G': 'غ',   'N': 'ں',   'O': 'ؤ',   'Y': 'ے',   
+        'C': 'ث',   
 
-        // Special characters and Diacritics (using symbols/other keys)
-        "'": 'ء',   // Hamza
-        ';': '؛',   // Semicolon
+        "'": 'ء',   ';': '؛',   
 
-        // Punctuation and Digits
         ',': '،', '.': '۔', '?': '؟', '!': '!',
         '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', 
         '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹',
-        ' ': ' ' // Space
+        ' ': ' ' 
     };
 
     // --- 2. Keyboard Input Logic (Virtual Buttons) ---
@@ -256,32 +300,32 @@
         let key = event.key;
         let urduChar = null;
 
-        // Check for shifted/capital keys first
         if (event.shiftKey) {
-            // Check for uppercase phonetic map (e.g., 'A' for Alif Madda)
             if (phoneticMap.hasOwnProperty(key.toUpperCase())) {
                  urduChar = phoneticMap[key.toUpperCase()];
             } else if (key === 'h') {
-                urduChar = 'ھ'; // Do Chashmi Heh via Shift+h
+                urduChar = 'ھ'; 
             }
         } 
         
-        // Check for standard/lowercase keys (unless already mapped by shift)
         if (urduChar === null && phoneticMap.hasOwnProperty(key)) {
             urduChar = phoneticMap[key];
         }
 
-
-        // Only proceed if a valid Urdu character was mapped, and it's not a control key
         if (urduChar !== null && key.length <= 1 && !event.ctrlKey && !event.altKey) {
-             // Prevent default browser action (like typing Latin 'a')
             event.preventDefault(); 
             document.execCommand('insertText', false, urduChar);
         }
     });
 
 
-    // --- 4. Rich Content Insertion Functions ---
+    // --- 4. Formatting Command Function ---
+    function formatDoc(command) {
+        editor.focus();
+        document.execCommand(command, false, null);
+    }
+    
+    // --- 5. Rich Content Insertion Functions ---
 
     function insertImage() {
         const url = prompt("تصویر کا یو آر ایل درج کریں (Enter the image URL):");
@@ -291,19 +335,41 @@
         }
     }
 
+    // --- UPDATED: Insert Table function to prompt for rows and columns ---
     function insertTable() {
-        const tableHTML = `
+        const rowsInput = prompt("کتنی قطاریں درکار ہیں؟ (Enter number of rows):", "3");
+        const colsInput = prompt("کتنے کالم درکار ہیں؟ (Enter number of columns):", "3");
+
+        const rows = parseInt(rowsInput);
+        const cols = parseInt(colsInput);
+
+        if (isNaN(rows) || rows <= 0 || isNaN(cols) || cols <= 0) {
+            alert("قطاروں اور کالموں کی تعداد درست درج کریں (Please enter valid number of rows and columns).");
+            return;
+        }
+
+        let tableHTML = `
             <table border="1" style="width: 100%; margin: 15px 0; border-collapse: collapse; text-align: right; direction: rtl;">
-                <tr>
-                    <th style="padding: 10px; background-color: #eee;">پہلی سرخی</th>
-                    <th style="padding: 10px; background-color: #eee;">دوسری سرخی</th>
-                </tr>
-                <tr>
-                    <td style="padding: 8px;">معلومات ایک</td>
-                    <td style="padding: 8px;">معلومات دو</td>
-                </tr>
-            </table>
         `;
+        
+        // Add Header Row (optional, but helpful)
+        tableHTML += '<tr>';
+        for (let i = 1; i <= cols; i++) {
+            tableHTML += `<th style="padding: 10px; background-color: #eee;">سرخی ${i}</th>`;
+        }
+        tableHTML += '</tr>';
+
+        // Add Data Rows
+        for (let r = 1; r < rows; r++) { // Start from 1 because header is row 0
+            tableHTML += '<tr>';
+            for (let c = 1; c <= cols; c++) {
+                tableHTML += `<td style="padding: 8px;">معلومات</td>`;
+            }
+            tableHTML += '</tr>';
+        }
+
+        tableHTML += '</table>';
+
         editor.focus();
         document.execCommand('insertHTML', false, tableHTML);
     }
@@ -318,6 +384,9 @@
         document.execCommand('insertHTML', false, shapeHTML);
     }
 
+    // --- 6. Save Functions ---
+    
+    // Saves content as an HTML file
     function saveDocument() {
         const content = editor.innerHTML;
         const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
@@ -334,6 +403,13 @@
         URL.revokeObjectURL(url);
         
         alert("Document saved as Urdu_Document.html! (ڈاکومینٹ محفوظ ہو گیا)");
+    }
+    
+    // Triggers the browser's print dialog to save as PDF (Content Only)
+    function saveToPdf() {
+        editor.focus(); 
+        alert("برائے مہربانی پرنٹ مینیو میں 'Save as PDF' کا انتخاب کریں۔\nPlease select 'Save as PDF' in the print menu.");
+        window.print();
     }
 
 </script>
