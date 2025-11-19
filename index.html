@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Urdu Document Editor</title>
+    <title>Urdu Editor: Full Keyboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&display=swap" rel="stylesheet">
     
     <style>
-        /* --- NEW FONT DEFINITION --- */
-        /* Define the local Faiz Lahori Nastaleeq font face */
+        /* --- FONT DEFINITIONS --- */
         @font-face {
             font-family: 'Faiz Lahori Nastaleeq';
             src: url('fonts/Faiz_Lahori_Nastaleeq_Regular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
+            font-weight: normal; font-style: normal;
         }
 
-        /* A4 dimensions (approximate pixels for 96 DPI) */
+        /* --- PAGE SETTINGS (A4) --- */
         :root {
             --a4-width-px: 794px;   
             --a4-height-px: 1123px; 
@@ -27,7 +25,6 @@
             --page-padding: 75px;   
         }
         
-        /* --- General Styling --- */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -35,194 +32,124 @@
         }
 
         h2 {
-            text-align: center;
-            color: #1a5276;
+            text-align: center; color: #1a5276;
             font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
             margin-bottom: 30px;
         }
 
-        /* --- Toolbars Container --- */
+        /* --- TOOLBARS --- */
         #toolbars-container {
             max-width: var(--a4-width-px);
             margin: 0 auto 15px auto;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            display: flex; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px;
         }
         
         #rich-content-toolbar, #formatting-toolbar {
-            display: flex;
-            align-items: center;
-            padding: 5px 0;
+            display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
         }
 
-        /* --- Toolbar Buttons --- */
-        .tool-btn, .format-btn, .font-select {
-            background-color: #5d98bc;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            margin-right: 5px; 
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.2s;
+        .tool-btn, .format-btn {
+            background-color: #5d98bc; color: white;
+            border: none; padding: 8px 15px;
+            cursor: pointer; border-radius: 5px;
+            font-size: 16px; transition: background-color 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
-        .tool-btn:hover, .format-btn:hover {
-            background-color: #3b7496;
-        }
-        .format-btn {
-            padding: 8px 12px;
-            font-size: 18px; 
-        }
-
-        /* Styling for the Bold Button */
-        #bold-btn { font-weight: bold; font-size: 20px; }
+        .tool-btn:hover, .format-btn:hover { background-color: #3b7496; }
+        
+        #bold-btn { font-weight: bold; }
         #pdf-btn { background-color: #e74c3c; }
         #pdf-btn:hover { background-color: #c0392b; }
+        #new-doc-btn { background-color: #f39c12; }
+        #new-doc-btn:hover { background-color: #d35400; }
+        #watermark-btn { background-color: #8e44ad; }
+        #watermark-btn:hover { background-color: #732d91; }
 
-        /* Styling for Font Dropdowns */
         #font-size-select, #font-family-select {
             padding: 8px; border-radius: 5px; border: 1px solid #ccc;
-            margin-right: 10px; font-size: 16px; background-color: white;
-            color: #333; cursor: pointer;
+            font-size: 16px; background-color: white; cursor: pointer;
         }
-        #font-family-select { min-width: 120px; }
-
-        /* Styling for the Color Picker */
         #color-picker {
-            width: 38px;
-            height: 38px;
-            padding: 2px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* --- Document Editor Area (A4 Styling) --- */
-        #document-editor {
-            /* Set A4 dimensions and center it */
-            width: var(--a4-width-px);
-            min-height: var(--a4-height-px);
-            height: auto; 
-            margin: 20px auto; 
-            
-            /* THIS IS THE VISUAL MARGIN */
-            padding: var(--page-padding); 
-            
-            border: 1px solid #ccc;
-            background-color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
-            
-            /* Urdu Default Styles */
-            direction: rtl; 
-            text-align: right;
-            font-family: 'Jameel Noori Nastaleeq', 'Simplified Arabic', sans-serif;
-            font-size: 24px; 
-            line-height: 1.8;
-            outline: none; 
-            word-wrap: break-word; 
-        }
-
-        /* --- Page Break Marker Styling --- */
-        .page-break {
-            height: 1px;
-            margin: 30px 0;
-            border-bottom: 2px dashed #bbb;
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            position: relative;
-        }
-        .page-break::after {
-            content: 'صفحہ وقفہ'; /* Page Break in Urdu */
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #f4f7f9;
-            padding: 0 10px;
+            width: 38px; height: 38px; padding: 2px;
+            border: 1px solid #ccc; border-radius: 5px; cursor: pointer;
         }
         
-        /* --- Virtual Keyboard Layout --- */
+        #save-status {
+            margin-left: 10px; font-size: 14px; font-weight: bold; min-width: 80px;
+        }
+
+        /* --- DOCUMENT EDITOR --- */
+        #document-editor {
+            width: var(--a4-width-px); min-height: var(--a4-height-px);
+            margin: 20px auto; padding: var(--page-padding); 
+            border: 1px solid #ccc; background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
+            direction: rtl; text-align: right;
+            font-family: 'Jameel Noori Nastaleeq', 'Simplified Arabic', sans-serif;
+            font-size: 24px; line-height: 1.8;
+            outline: none; word-wrap: break-word; 
+            position: relative; z-index: 1;
+        }
+
+        #document-editor::after {
+            content: attr(data-watermark);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px; color: rgba(0, 0, 0, 0.08);
+            white-space: nowrap; pointer-events: none; z-index: -1;
+            font-family: Arial, sans-serif; font-weight: bold;
+        }
+
+        .page-break {
+            height: 1px; margin: 30px 0; border-bottom: 2px dashed #bbb; position: relative;
+        }
+        .page-break::after {
+            content: 'صفحہ وقفہ (Page Break)';
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #f4f7f9; padding: 0 10px; font-size: 12px; color: #888;
+        }
+        
+        /* --- VIRTUAL KEYBOARD --- */
         #keyboard-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end; 
-            max-width: var(--a4-width-px);
-            margin: 0 auto 30px auto;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #e8eef2;
-            border: 1px solid #ddd;
+            display: flex; flex-wrap: wrap; justify-content: flex-end; 
+            max-width: var(--a4-width-px); margin: 0 auto 30px auto;
+            border-radius: 8px; padding: 10px;
+            background-color: #e8eef2; border: 1px solid #ddd;
         }
 
         .urdu-key {
-            background-color: #ffffff;
-            color: #333;
-            border: 1px solid #ccc;
-            margin: 3px;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 24px;
-            font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
-            min-width: 45px;
-            text-align: center;
-            line-height: 1.2;
-            transition: background-color 0.1s, transform 0.1s;
+            background-color: #ffffff; color: #333;
+            border: 1px solid #ccc; margin: 3px; padding: 5px 10px;
+            cursor: pointer; border-radius: 4px;
+            font-size: 24px; font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
+            min-width: 45px; text-align: center; transition: transform 0.1s;
         }
-
+        .urdu-key:active { transform: scale(0.95); }
         .urdu-key span { 
-            display: block; 
-            font-size: 14px; 
-            font-family: Arial, sans-serif; 
-            color: #555; 
-            margin-top: 3px;
+            display: block; font-size: 12px; font-family: Arial, sans-serif; 
+            color: #666; margin-top: 2px;
         }
         
-        /* --- PRINT-SPECIFIC STYLES (Content Only, with margin) --- */
-        @media print {
-            body {
-                margin: 0;
-            }
-            body > * {
-                visibility: hidden; 
-            }
-            
-            #document-editor {
-                visibility: visible;
-                position: absolute;
-                left: 0;
-                top: 0;
-                
-                width: 210mm; 
-                min-height: 297mm; 
-                margin: 0;
-                box-shadow: none;
-                border: none;
-                overflow: visible !important;
-                
-                /* THIS IS THE CRUCIAL PRINT MARGIN */
-                padding: var(--page-margin-cm); 
-            }
-            
-            .page-break {
-                height: 0;
-                border: none !important;
-                page-break-before: always;
-                content: '';
-                visibility: visible !important;
-            }
-            .page-break::after {
-                content: none;
-            }
-            #document-editor, #document-editor * {
-                visibility: visible; 
-            }
+        /* Separator line in keyboard */
+        .key-separator {
+            width: 100%; height: 1px; background-color: #ccc; margin: 8px 0;
         }
-
+        
+        @media print {
+            body { margin: 0; background-color: white; }
+            body > * { visibility: hidden; } 
+            #document-editor {
+                visibility: visible; position: absolute; left: 0; top: 0;
+                width: 210mm; min-height: 297mm; margin: 0;
+                box-shadow: none; border: none;
+                padding: var(--page-margin-cm); overflow: visible !important;
+            }
+            #document-editor * { visibility: visible; }
+            #document-editor::after { visibility: visible; }
+            .page-break { height: 0; border: none !important; page-break-before: always; content: ''; }
+            .page-break::after { content: none; }
+        }
     </style>
 </head>
 <body>
@@ -230,48 +157,34 @@
     <h2>اردو آن لائن ڈاکومنٹ ایڈیٹر • Online Urdu Document Editor</h2>
     
     <div id="toolbars-container">
-        
         <div id="rich-content-toolbar">
-            <button class="tool-btn" onclick="insertImage()">🖼️ Insert Image (Local)</button>
+            <button class="tool-btn" onclick="insertImage()">🖼️ Image</button>
             <button class="tool-btn" onclick="insertTable()">📅 Table</button>
-            <button class="tool-btn" onclick="insertShape()">⬛ Shape/Box</button>
-            <button class="tool-btn" id="pdf-btn" onclick="saveToPdf()">📄 Save to PDF</button> 
+            <button class="tool-btn" onclick="insertShape()">⬛ Box</button>
+            <button class="tool-btn" id="watermark-btn" onclick="setWatermark()">© Watermark</button>
+            <button class="tool-btn" id="new-doc-btn" onclick="createNewDocument()">📄 New Doc</button>
+            <button class="tool-btn" id="pdf-btn" onclick="saveToPdf()">📄 Save PDF</button> 
             <button class="tool-btn" onclick="saveDocument()">💾 Save HTML</button>
+            <span id="save-status"></span>
         </div>
 
         <div id="formatting-toolbar">
-            <button class="format-btn" id="bold-btn" onclick="formatDoc('bold')">**B**</button> 
-            
+            <button class="format-btn" id="bold-btn" onclick="formatDoc('bold')">B</button> 
             <input type="color" id="color-picker" title="Text Color" value="#333333">
-            
-            <select id="font-family-select" title="Font Family">
-                <option value="" disabled selected>فونٹ</option>
-            </select>
-            
-            <select id="font-size-select" title="Font Size">
-                <option value="" disabled selected>سائز (px)</option>
-            </select>
-            
-            <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️ Align Left</button>
-            <button class="format-btn" onclick="formatDoc('justifyCenter')">━ Align Center</button>
-            <button class="format-btn" onclick="formatDoc('justifyRight')">➡️ Align Right</button>
-            <button class="format-btn" onclick="formatDoc('justifyFull')">Ξ Justify</button>
-            <button class="format-btn" onclick="formatDoc('insertUnorderedList')">• Bullets</button>
-            <button class="format-btn" onclick="formatDoc('insertOrderedList')"># Numbering</button>
+            <select id="font-family-select" title="Font Family"><option value="" disabled selected>Font</option></select>
+            <select id="font-size-select" title="Font Size"><option value="" disabled selected>Size</option></select>
+            <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️</button>
+            <button class="format-btn" onclick="formatDoc('justifyCenter')">━</button>
+            <button class="format-btn" onclick="formatDoc('justifyRight')">➡️</button>
+            <button class="format-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet Points">•</button>
+            <button class="format-btn" onclick="formatDoc('insertOrderedList')" title="Numbering 1, 2, 3">🔢 1.2.3</button>
         </div>
     </div>
     
-    <div 
-        id="document-editor" 
-        contenteditable="true" 
-        dir="rtl" 
-        placeholder="یہاں لکھنا شروع کریں... Use your Latin keyboard phonetically (a=ا, p=پ, etc.)"
-    ></div>
+    <div id="document-editor" contenteditable="true" dir="rtl" placeholder="یہاں لکھنا شروع کریں..." data-watermark=""></div>
 
     <div id="keyboard-container" dir="rtl">
-        
         <button class="urdu-key" data-char="ا">ا<span>a</span></button>
-        <button class="urdu-key" data-char="آ">آ<span>A</span></button>
         <button class="urdu-key" data-char="ب">ب<span>b</span></button>
         <button class="urdu-key" data-char="پ">پ<span>p</span></button>
         <button class="urdu-key" data-char="ت">ت<span>t</span></button>
@@ -287,7 +200,6 @@
         <button class="urdu-key" data-char="ر">ر<span>r</span></button>
         <button class="urdu-key" data-char="ڑ">ڑ<span>R</span></button>
         <button class="urdu-key" data-char="ز">ز<span>z</span></button>
-        <button class="urdu-key" data-char="ژ">ژ<span>x</span></button>
         <button class="urdu-key" data-char="س">س<span>s</span></button>
         <button class="urdu-key" data-char="ش">ش<span>S</span></button>
         <button class="urdu-key" data-char="ص">ص<span>q</span></button>
@@ -304,33 +216,40 @@
         <button class="urdu-key" data-char="م">م<span>m</span></button>
         <button class="urdu-key" data-char="ن">ن<span>n</span></button>
         <button class="urdu-key" data-char="ں">ں<span>N</span></button>
-        <button class="urdu-key" data-char="و">و<span>w/u/v</span></button>
+        <button class="urdu-key" data-char="و">و<span>w</span></button>
         <button class="urdu-key" data-char="ہ">ہ<span>h</span></button>
         <button class="urdu-key" data-char="ھ">ھ<span>Hh</span></button>
-        <button class="urdu-key" data-char="ی">ی<span>i/y</span></button>
-        <button class="urdu-key" data-char="ے">ے<span>Y/E</span></button>
+        <button class="urdu-key" data-char="ی">ی<span>i</span></button>
+        <button class="urdu-key" data-char="ے">ے<span>Y</span></button>
         <button class="urdu-key" data-char="ئ">ئ<span>E</span></button> 
+        <button class="urdu-key" data-char="ؤ">ؤ<span>O</span></button>
         
-        <button class="urdu-key special" data-char="ۓ">ۓ<span>Y</span></button>  <button class="urdu-key special" data-char="ؤ">ؤ<span>O</span></button>  <button class="urdu-key special" data-char="ء">ء<span>'</span></button>  <button class="urdu-key special" data-char="۔">۔<span>.</span></button>  <button class="urdu-key special" data-char="؛">؛<span>;</span></button>  <button class="urdu-key special" data-char="؟">؟<span>?</span></button>
-        <button class="urdu-key special" data-char="!">!<span>!</span></button>
-        <button class="urdu-key special" data-char="،">،<span>,</span></button>
+        <div class="key-separator"></div>
         
-        <button class="urdu-key special" data-char="۰">۰<span>0</span></button>
-        <button class="urdu-key special" data-char="۱">۱<span>1</span></button>
-        <button class="urdu-key special" data-char="۲">۲<span>2</span></button>
-        <button class="urdu-key special" data-char="۳">۳<span>3</span></button>
-        <button class="urdu-key special" data-char="۴">۴<span>4</span></button>
-        <button class="urdu-key special" data-char="۵">۵<span>5</span></button>
-        <button class="urdu-key special" data-char="۶">۶<span>6</span></button>
-        <button class="urdu-key special" data-char="۷">۷<span>7</span></button>
-        <button class="urdu-key special" data-char="۸">۸<span>8</span></button>
-        <button class="urdu-key special" data-char="۹">۹<span>9</span></button>
-
         <button class="urdu-key space" data-char=" ">Space</button>
-        <button class="urdu-key special" onclick="document.execCommand('undo', false, null)">↩️ Undo</button>
-        <button class="urdu-key special" onclick="document.execCommand('delete', false, null)">❌ Backspace</button>
+        <button class="urdu-key" data-char="ء">ء<span>'</span></button>
+        <button class="urdu-key" data-char="۔">۔<span>.</span></button>
+        <button class="urdu-key" data-char="،">،<span>,</span></button>
+        <button class="urdu-key" data-char="؛">؛<span>;</span></button>
+        <button class="urdu-key" data-char="؟">؟<span>?</span></button>
+        <button class="urdu-key" data-char="!">!<span>!</span></button>
+        <button class="urdu-key special" onclick="document.execCommand('undo')">↩️ Undo</button>
         <button class="urdu-key special" data-char="\n">⏎ Enter</button>
         
+        <div class="key-separator"></div>
+
+        <div style="width: 100%; text-align: center; display: flex; justify-content: center; flex-wrap: wrap;">
+             <button class="urdu-key" data-char="۱">۱<span>1</span></button>
+             <button class="urdu-key" data-char="۲">۲<span>2</span></button>
+             <button class="urdu-key" data-char="۳">۳<span>3</span></button>
+             <button class="urdu-key" data-char="۴">۴<span>4</span></button>
+             <button class="urdu-key" data-char="۵">۵<span>5</span></button>
+             <button class="urdu-key" data-char="۶">۶<span>6</span></button>
+             <button class="urdu-key" data-char="۷">۷<span>7</span></button>
+             <button class="urdu-key" data-char="۸">۸<span>8</span></button>
+             <button class="urdu-key" data-char="۹">۹<span>9</span></button>
+             <button class="urdu-key" data-char="۰">۰<span>0</span></button>
+        </div>
     </div>
 
 <script>
@@ -338,308 +257,213 @@
     const keys = document.querySelectorAll('.urdu-key');
     const fontFamilySelect = document.getElementById('font-family-select');
     const colorPicker = document.getElementById('color-picker'); 
+    const statusLabel = document.getElementById('save-status');
 
-    // Define A4 height for calculation
-    const A4_HEIGHT_PX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--a4-height-px'));
-    const PAGE_PADDING_PX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-padding'));
-    const USABLE_PAGE_HEIGHT = A4_HEIGHT_PX; 
+    const A4_HEIGHT_PX = 1123; 
+    const STORAGE_KEY = 'urdu_editor_content_v2'; 
 
-    // --- 1. Phonetic Key Mapping ---
-    // NOTE: 'e' is mapped to 'ع', so 'E' (Shift+E) is used for 'ئ'.
-    // 'y' is mapped to 'ی', and 'Y' (Shift+Y) is mapped to 'ے'.
-    // 'O' (Shift+O) is used for 'ؤ'.
+    // --- 1. Phonetic Mapping ---
     const phoneticMap = {
         'a': 'ا', 'b': 'ب', 'p': 'پ', 't': 'ت', 'j': 'ج', 'c': 'چ', 'H': 'ح', 
         'k': 'ک', 'g': 'گ', 'l': 'ل', 'm': 'م', 'n': 'ن', 'd': 'د', 'r': 'ر', 
         'z': 'ز', 's': 'س', 'S': 'ش', 'x': 'ص', 'f': 'ف', 'q': 'ق', 
-        'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ع',
-        'h': 'ہ', 
-        
-        'A': 'آ',   'T': 'ٹ',   'D': 'ڈ',   'R': 'ڑ',   'Z': 'ذ',   'X': 'ض',   
-        'I': 'ط',   'E': 'ئ',   'G': 'غ',   'N': 'ں',   'O': 'ؤ',   'Y': 'ے',   
-        'C': 'ث',   
-
-        "'": 'ء',   ';': '؛',   
-
-        ',': '،', '.': '۔', '?': '؟', '!': '!',
+        'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ع', 'h': 'ہ', 
+        'A': 'آ', 'T': 'ٹ', 'D': 'ڈ', 'R': 'ڑ', 'Z': 'ذ', 'X': 'ض', 
+        'I': 'ط', 'E': 'ئ', 'G': 'غ', 'N': 'ں', 'O': 'ؤ', 'Y': 'ے', 
+        'C': 'ث', "'": 'ء', ';': '؛', ',': '،', '.': '۔', '?': '؟', 
         '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', 
-        '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹',
-        ' ': ' ' 
+        '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'
     };
 
-    // --- 2. Keyboard Input Logic ---
+    // --- 2. Keyboard Event Listeners ---
     keys.forEach(key => {
         key.addEventListener('click', () => {
             const char = key.getAttribute('data-char');
             if (char) {
                 editor.focus();
                 document.execCommand('insertText', false, char);
-                checkPageBreak(); 
+                triggerInputEvent();
             }
         });
     });
 
-    // --- 3. Physical Keyboard Typing Logic ---
     editor.addEventListener('keydown', (event) => {
         let key = event.key;
         let urduChar = null;
 
-        if (event.shiftKey) {
-            // Check for Shifted keys (Shift+Y, Shift+E, Shift+O, etc.)
-            if (phoneticMap.hasOwnProperty(key.toUpperCase())) {
-                 urduChar = phoneticMap[key.toUpperCase()];
-            } else if (key === 'h') {
-                urduChar = 'ھ'; // Shift + H for Do Chashmi Heh
-            }
-        } 
-        
-        // Handling the standard (lowercase) and single-key punctuation
-        if (urduChar === null && phoneticMap.hasOwnProperty(key)) {
+        if (event.shiftKey && phoneticMap.hasOwnProperty(key.toUpperCase())) {
+            urduChar = phoneticMap[key.toUpperCase()];
+        } else if (key === 'h' && event.shiftKey) {
+            urduChar = 'ھ'; 
+        } else if (phoneticMap.hasOwnProperty(key)) {
             urduChar = phoneticMap[key];
         }
 
-        if (urduChar !== null && key.length <= 1 && !event.ctrlKey && !event.altKey) {
+        if (urduChar !== null && key.length === 1 && !event.ctrlKey && !event.altKey) {
             event.preventDefault(); 
             document.execCommand('insertText', false, urduChar);
         }
     });
-    
-    // --- 4. Auto Page Break Logic ---
+
+    // --- 3. Auto-Save & Logic ---
+    window.addEventListener('load', () => {
+        initDropdowns();
+        const savedContent = localStorage.getItem(STORAGE_KEY);
+        const savedWatermark = localStorage.getItem(STORAGE_KEY + '_wm');
+        
+        if (savedContent && savedContent.trim() !== "") {
+            editor.innerHTML = savedContent;
+            statusLabel.textContent = "✓ Loaded";
+            statusLabel.style.color = "green";
+            checkPageBreak();
+        }
+        if (savedWatermark) {
+            editor.setAttribute('data-watermark', savedWatermark);
+        }
+    });
+
+    editor.addEventListener('input', () => {
+        triggerInputEvent();
+    });
+
+    function triggerInputEvent() {
+        localStorage.setItem(STORAGE_KEY, editor.innerHTML);
+        localStorage.setItem(STORAGE_KEY + '_wm', editor.getAttribute('data-watermark') || "");
+        statusLabel.textContent = "Saving...";
+        statusLabel.style.color = "#e67e22"; 
+        clearTimeout(window.saveTimer);
+        window.saveTimer = setTimeout(() => {
+            statusLabel.textContent = "✓ Saved";
+            statusLabel.style.color = "green";
+        }, 800);
+        checkPageBreak();
+    }
+
     function checkPageBreak() {
         const scrollHeight = editor.scrollHeight; 
-        const requiredBreaks = Math.floor(scrollHeight / USABLE_PAGE_HEIGHT);
-
-        const pageBreaks = Array.from(editor.querySelectorAll('.page-break'));
-
-        for (let i = pageBreaks.length; i < requiredBreaks; i++) {
+        const requiredBreaks = Math.floor(scrollHeight / A4_HEIGHT_PX);
+        const currentBreaks = editor.querySelectorAll('.page-break').length;
+        if (currentBreaks < requiredBreaks) {
             const breakDiv = document.createElement('div');
             breakDiv.className = 'page-break';
             editor.appendChild(breakDiv);
         }
     }
-    
-    editor.addEventListener('input', checkPageBreak);
-    
-    // --- 5. Image Resizing Toggles ---
-    editor.addEventListener('focus', () => {
-        document.execCommand('enableObjectResizing', true, 'true');
-    });
-    editor.addEventListener('blur', () => {
-        document.execCommand('enableObjectResizing', false, 'false');
-    });
-    editor.addEventListener('mouseup', () => {
-        document.execCommand('enableObjectResizing', true, 'true');
-    });
 
-
-    // --- 6. Formatting Command Function ---
-    function formatDoc(command) {
-        editor.focus();
-        document.execCommand(command, false, null);
-        checkPageBreak();
-    }
-
-    // --- 7. Font Size and Family Logic ---
-    
-    function createFontSizeOptions() {
-        const select = document.getElementById('font-size-select');
-        for (let i = 8; i <= 100; i += (i < 24 ? 2 : 4)) {
-            const option = document.createElement('option');
-            option.value = i + 'px';
-            option.textContent = i + ' px';
-            select.appendChild(option);
+    function createNewDocument() {
+        if (confirm("Start new document? This clears current work.")) {
+            editor.innerHTML = "";
+            editor.setAttribute('data-watermark', ""); 
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(STORAGE_KEY + '_wm');
+            statusLabel.textContent = "New Doc";
+            editor.focus();
         }
     }
     
-    function createFontFamilyOptions() {
-        const fonts = [
-            { name: 'فیض لاہوری نستعلیق (Faiz Lahori)', value: 'Faiz Lahori Nastaleeq, serif' },
-            { name: 'جمیل نوری نستعلیق (Jameel Noori)', value: 'Jameel Noori Nastaleeq, serif' },
-            { name: 'Arial (Standard)', value: 'Arial, sans-serif' },
-            { name: 'Times New Roman (Standard)', value: 'Times New Roman, serif' },
-            { name: 'Simplified Arabic (Arabic)', value: 'Simplified Arabic, sans-serif' },
-            { name: 'Courier New (Monospace)', value: 'Courier New, monospace' }
-        ];
-
-        fonts.forEach(font => {
-            const option = document.createElement('option');
-            option.value = font.value;
-            option.textContent = font.name;
-            option.style.fontFamily = font.value;
-            option.style.direction = font.value.includes('Nastaleeq') || font.value.includes('Arabic') ? 'rtl' : 'ltr';
-            fontFamilySelect.appendChild(option);
-        });
+    function setWatermark() {
+        const current = editor.getAttribute('data-watermark') || "";
+        const text = prompt("Enter Watermark Text (e.g., CONFIDENTIAL):", current);
+        if (text !== null) {
+            editor.setAttribute('data-watermark', text);
+            triggerInputEvent(); 
+        }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        createFontSizeOptions();
-        createFontFamilyOptions();
-        document.execCommand('styleWithCSS', false, true); 
-    });
+    // --- 4. Formatting ---
+    function formatDoc(command, value = null) {
+        document.execCommand(command, false, value);
+        editor.focus();
+        triggerInputEvent();
+    }
+
+    function initDropdowns() {
+        const fonts = [
+            { name: 'Jameel Noori Nastaleeq', val: 'Jameel Noori Nastaleeq' },
+            { name: 'Faiz Lahori', val: 'Faiz Lahori Nastaleeq' },
+            { name: 'Arial', val: 'Arial' },
+            { name: 'Courier New', val: 'Courier New' }
+        ];
+        fonts.forEach(f => {
+            let opt = document.createElement('option');
+            opt.value = f.val; opt.text = f.name;
+            fontFamilySelect.add(opt);
+        });
+        for(let i=12; i<=72; i+=4) {
+            let opt = document.createElement('option');
+            opt.value = i; opt.text = i + 'px';
+            document.getElementById('font-size-select').add(opt);
+        }
+    }
     
     document.getElementById('font-size-select').addEventListener('change', function() {
-        const sizeValue = this.value; 
-        if (sizeValue) {
-            editor.focus();
-            
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const content = range.extractContents();
-                
-                const span = document.createElement('span');
-                span.style.fontSize = sizeValue;
-                span.appendChild(content);
-                
-                range.insertNode(span);
-                selection.removeAllRanges();
+        if (this.value) {
+            document.execCommand('fontSize', false, "7");
+            const fontElements = editor.getElementsByTagName("font");
+            for (let i = 0; i < fontElements.length; i++) {
+                if (fontElements[i].size === "7") {
+                    fontElements[i].removeAttribute("size");
+                    fontElements[i].style.fontSize = this.value + "px";
+                }
             }
-            this.selectedIndex = 0; 
-            checkPageBreak();
+            this.selectedIndex = 0;
+            triggerInputEvent();
         }
     });
 
     fontFamilySelect.addEventListener('change', function() {
-        const fontName = this.value; 
-        if (fontName) {
-            editor.focus();
-            document.execCommand('fontName', false, fontName);
-            this.selectedIndex = 0; 
-            checkPageBreak();
-        }
+        formatDoc('fontName', this.value);
     });
-
-    // --- Color Picker Logic ---
     colorPicker.addEventListener('input', function() {
-        const colorValue = this.value;
-        editor.focus();
-        document.execCommand('foreColor', false, colorValue);
-        checkPageBreak();
+        formatDoc('foreColor', this.value);
     });
 
-
-    // --- 8. Conversion Function ---
-    const CM_TO_PX_RATIO = 37.79527559; 
-    function cmToPx(cm) {
-        return Math.round(cm * CM_TO_PX_RATIO);
-    }
-    
-    // --- 9. Rich Content Insertion Functions ---
-
+    // --- 5. Insertables ---
     function insertImage() {
-        const dimInput = prompt("اونچائی اور چوڑائی سینٹی میٹر میں درج کریں، کوما سے الگ کریں (e.g., 5, 8):", "5, 5");
-        if (!dimInput) return;
-
-        const dims = dimInput.split(',').map(d => parseFloat(d.trim()));
-        
-        let height = dims[0];
-        let width = dims.length > 1 ? dims[1] : height; 
-
-        if (isNaN(height) || height <= 0 || isNaN(width) || width <= 0) {
-            alert("اونچائی اور چوڑائی کی درست قدریں درج کریں (Please enter valid positive numbers for dimensions).");
-            return;
-        }
-
-        const heightPx = cmToPx(height);
-        const widthPx = cmToPx(width);
-
         const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        
+        input.type = 'file'; input.accept = 'image/*';
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (readerEvent) => {
-                    const dataUrl = readerEvent.target.result;
-                    editor.focus();
-                    
-                    const imgHTML = `<img src="${dataUrl}" style="height:${heightPx}px; width:${widthPx}px; margin: 5px; float: right;" alt="User Image">`;
-                    
-                    document.execCommand('insertHTML', false, imgHTML);
-                    checkPageBreak();
+                reader.onload = (r) => {
+                    const html = `<img src="${r.target.result}" style="max-width:300px; float:right; margin:10px;">`;
+                    document.execCommand('insertHTML', false, html);
+                    triggerInputEvent();
                 };
                 reader.readAsDataURL(file);
             }
         };
-
         input.click();
     }
 
     function insertTable() {
-        const dimInput = prompt("قطاریں اور کالموں کی تعداد درج کریں، کوما سے الگ کریں (e.g., 4, 3):", "3, 3");
-        if (!dimInput) return;
-
-        const dims = dimInput.split(',').map(d => parseInt(d.trim()));
-        
-        let rows = dims[0];
-        let cols = dims.length > 1 ? dims[1] : dims[0];
-
-        if (isNaN(rows) || rows <= 0 || isNaN(cols) || cols <= 0) {
-            alert("قطاروں اور کالموں کی درست تعداد درج کریں (Please enter valid positive numbers for rows and columns).");
-            return;
-        }
-
-        let tableHTML = `<table border="1" style="width: 100%; margin: 15px 0; border-collapse: collapse; text-align: right; direction: rtl;">`;
-        tableHTML += '<tr>';
-        for (let i = 1; i <= cols; i++) {
-            tableHTML += `<th style="padding: 10px; background-color: #eee;">سرخی ${i}</th>`;
-        }
-        tableHTML += '</tr>';
-
-        for (let r = 1; r < rows; r++) { 
-            tableHTML += '<tr>';
-            for (let c = 1; c <= cols; c++) {
-                tableHTML += `<td style="padding: 8px;">معلومات</td>`;
-            }
-            tableHTML += '</tr>';
-        }
-
-        tableHTML += '</table>';
-
-        editor.focus();
-        document.execCommand('insertHTML', false, tableHTML);
-        checkPageBreak();
+        const html = `<table border="1" style="width:100%; border-collapse:collapse; margin:10px 0;">
+            <tr><td style="padding:5px;">Data</td><td style="padding:5px;">Data</td></tr>
+            <tr><td style="padding:5px;">Data</td><td style="padding:5px;">Data</td></tr>
+        </table><br>`;
+        document.execCommand('insertHTML', false, html);
+        triggerInputEvent();
     }
 
     function insertShape() {
-        const shapeHTML = `
-            <div style="border: 3px solid #1a5276; padding: 15px; margin: 15px; background-color: #e6f3fa; border-radius: 8px; font-weight: bold; width: fit-content; direction: rtl; display: inline-block;">
-                ضروری نوٹ: یہاں اہم معلومات لکھیں
-            </div>
-        `;
-        editor.focus();
-        document.execCommand('insertHTML', false, shapeHTML);
-        checkPageBreak();
+        const html = `<div style="border:2px solid #333; padding:15px; background:#eee; border-radius:5px; width:50%; margin:10px auto;">Box</div><br>`;
+        document.execCommand('insertHTML', false, html);
+        triggerInputEvent();
     }
 
-    // --- 10. Save Functions ---
-    
     function saveDocument() {
-        const content = editor.innerHTML;
-        const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        
+        const blob = new Blob([editor.innerHTML], { type: 'text/html' });
         const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Urdu_Document.html';
-        
-        document.body.appendChild(a);
+        a.href = URL.createObjectURL(blob);
+        a.download = 'urdu_doc.html';
         a.click();
-        document.body.removeChild(a);
-        
-        URL.revokeObjectURL(url);
-        
-        alert("Document saved as Urdu_Document.html! (ڈاکومینٹ محفوظ ہو گیا)");
     }
-    
+
     function saveToPdf() {
-        editor.focus(); 
-        alert("برائے مہربانی پرنٹ مینیو میں 'Save as PDF' کا انتخاب کریں۔\nPlease select 'Save as PDF' in the print menu.");
+        alert("Select 'Save as PDF' in the print window.");
         window.print();
     }
-
 </script>
 </body>
 </html>
