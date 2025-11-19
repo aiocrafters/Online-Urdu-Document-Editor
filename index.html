@@ -10,12 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&display=swap" rel="stylesheet">
     
     <style>
+        /* --- NEW FONT DEFINITION --- */
+        /* Define the local Faiz Lahori Nastaleeq font face */
+        @font-face {
+            font-family: 'Faiz Lahori Nastaleeq';
+            src: url('fonts/Faiz_Lahori_Nastaleeq_Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* A4 dimensions (approximate pixels for 96 DPI) */
         :root {
-            --a4-width-px: 794px;   /* 21.0cm */
-            --a4-height-px: 1123px; /* 29.7cm */
-            --page-margin-cm: 2cm;  /* Explicit margin size in cm */
-            --page-padding: 75px;   /* approx 2cm converted to px */
+            --a4-width-px: 794px;   
+            --a4-height-px: 1123px; 
+            --page-margin-cm: 2cm;  
+            --page-padding: 75px;   
         }
         
         /* --- General Styling --- */
@@ -80,6 +89,16 @@
         }
         #font-family-select { min-width: 120px; }
 
+        /* Styling for the Color Picker */
+        #color-picker {
+            width: 38px;
+            height: 38px;
+            padding: 2px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
         /* --- Document Editor Area (A4 Styling) --- */
         #document-editor {
@@ -126,7 +145,7 @@
             padding: 0 10px;
         }
         
-        /* --- Virtual Keyboard Layout (Unchanged) --- */
+        /* --- Virtual Keyboard Layout --- */
         #keyboard-container {
             display: flex;
             flex-wrap: wrap;
@@ -178,7 +197,6 @@
                 left: 0;
                 top: 0;
                 
-                /* Set print size to full A4 dimensions */
                 width: 210mm; 
                 min-height: 297mm; 
                 margin: 0;
@@ -187,7 +205,6 @@
                 overflow: visible !important;
                 
                 /* THIS IS THE CRUCIAL PRINT MARGIN */
-                /* The content within the editor will respect this space */
                 padding: var(--page-margin-cm); 
             }
             
@@ -224,6 +241,8 @@
 
         <div id="formatting-toolbar">
             <button class="format-btn" id="bold-btn" onclick="formatDoc('bold')">**B**</button> 
+            
+            <input type="color" id="color-picker" title="Text Color" value="#333333">
             
             <select id="font-family-select" title="Font Family">
                 <option value="" disabled selected>فونٹ</option>
@@ -290,12 +309,11 @@
         <button class="urdu-key" data-char="ھ">ھ<span>Hh</span></button>
         <button class="urdu-key" data-char="ی">ی<span>i/y</span></button>
         <button class="urdu-key" data-char="ے">ے<span>Y/E</span></button>
-        <button class="urdu-key" data-char="ء">ء<span>'</span></button>
+        <button class="urdu-key" data-char="ئ">ئ<span>E</span></button> 
         
-        <button class="urdu-key special" data-char="؟">؟<span>?</span></button>
+        <button class="urdu-key special" data-char="ۓ">ۓ<span>Y</span></button>  <button class="urdu-key special" data-char="ؤ">ؤ<span>O</span></button>  <button class="urdu-key special" data-char="ء">ء<span>'</span></button>  <button class="urdu-key special" data-char="۔">۔<span>.</span></button>  <button class="urdu-key special" data-char="؛">؛<span>;</span></button>  <button class="urdu-key special" data-char="؟">؟<span>?</span></button>
         <button class="urdu-key special" data-char="!">!<span>!</span></button>
         <button class="urdu-key special" data-char="،">،<span>,</span></button>
-        <button class="urdu-key special" data-char="۔">۔<span>.</span></button>
         
         <button class="urdu-key special" data-char="۰">۰<span>0</span></button>
         <button class="urdu-key special" data-char="۱">۱<span>1</span></button>
@@ -319,22 +337,26 @@
     const editor = document.getElementById('document-editor');
     const keys = document.querySelectorAll('.urdu-key');
     const fontFamilySelect = document.getElementById('font-family-select');
+    const colorPicker = document.getElementById('color-picker'); 
 
     // Define A4 height for calculation
     const A4_HEIGHT_PX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--a4-height-px'));
     const PAGE_PADDING_PX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-padding'));
     const USABLE_PAGE_HEIGHT = A4_HEIGHT_PX; 
 
-    // --- 1. Phonetic Key Mapping (Unchanged) ---
+    // --- 1. Phonetic Key Mapping ---
+    // NOTE: 'e' is mapped to 'ع', so 'E' (Shift+E) is used for 'ئ'.
+    // 'y' is mapped to 'ی', and 'Y' (Shift+Y) is mapped to 'ے'.
+    // 'O' (Shift+O) is used for 'ؤ'.
     const phoneticMap = {
         'a': 'ا', 'b': 'ب', 'p': 'پ', 't': 'ت', 'j': 'ج', 'c': 'چ', 'H': 'ح', 
         'k': 'ک', 'g': 'گ', 'l': 'ل', 'm': 'م', 'n': 'ن', 'd': 'د', 'r': 'ر', 
         'z': 'ز', 's': 'س', 'S': 'ش', 'x': 'ص', 'f': 'ف', 'q': 'ق', 
-        'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ے',
+        'v': 'و', 'w': 'و', 'u': 'و', 'i': 'ی', 'y': 'ی', 'e': 'ع',
         'h': 'ہ', 
         
         'A': 'آ',   'T': 'ٹ',   'D': 'ڈ',   'R': 'ڑ',   'Z': 'ذ',   'X': 'ض',   
-        'I': 'ط',   'E': 'ع',   'G': 'غ',   'N': 'ں',   'O': 'ؤ',   'Y': 'ے',   
+        'I': 'ط',   'E': 'ئ',   'G': 'غ',   'N': 'ں',   'O': 'ؤ',   'Y': 'ے',   
         'C': 'ث',   
 
         "'": 'ء',   ';': '؛',   
@@ -363,13 +385,15 @@
         let urduChar = null;
 
         if (event.shiftKey) {
+            // Check for Shifted keys (Shift+Y, Shift+E, Shift+O, etc.)
             if (phoneticMap.hasOwnProperty(key.toUpperCase())) {
                  urduChar = phoneticMap[key.toUpperCase()];
             } else if (key === 'h') {
-                urduChar = 'ھ'; 
+                urduChar = 'ھ'; // Shift + H for Do Chashmi Heh
             }
         } 
         
+        // Handling the standard (lowercase) and single-key punctuation
         if (urduChar === null && phoneticMap.hasOwnProperty(key)) {
             urduChar = phoneticMap[key];
         }
@@ -382,18 +406,14 @@
     
     // --- 4. Auto Page Break Logic ---
     function checkPageBreak() {
-        // This function ensures the page break marker is inserted visually when content overflows.
-        
         const scrollHeight = editor.scrollHeight; 
         const requiredBreaks = Math.floor(scrollHeight / USABLE_PAGE_HEIGHT);
 
         const pageBreaks = Array.from(editor.querySelectorAll('.page-break'));
 
-        // Add missing page breaks
         for (let i = pageBreaks.length; i < requiredBreaks; i++) {
             const breakDiv = document.createElement('div');
             breakDiv.className = 'page-break';
-            
             editor.appendChild(breakDiv);
         }
     }
@@ -433,7 +453,8 @@
     
     function createFontFamilyOptions() {
         const fonts = [
-            { name: 'جمیل نوری نستعلیق (Urdu)', value: 'Jameel Noori Nastaleeq, serif' },
+            { name: 'فیض لاہوری نستعلیق (Faiz Lahori)', value: 'Faiz Lahori Nastaleeq, serif' },
+            { name: 'جمیل نوری نستعلیق (Jameel Noori)', value: 'Jameel Noori Nastaleeq, serif' },
             { name: 'Arial (Standard)', value: 'Arial, sans-serif' },
             { name: 'Times New Roman (Standard)', value: 'Times New Roman, serif' },
             { name: 'Simplified Arabic (Arabic)', value: 'Simplified Arabic, sans-serif' },
@@ -486,6 +507,14 @@
             this.selectedIndex = 0; 
             checkPageBreak();
         }
+    });
+
+    // --- Color Picker Logic ---
+    colorPicker.addEventListener('input', function() {
+        const colorValue = this.value;
+        editor.focus();
+        document.execCommand('foreColor', false, colorValue);
+        checkPageBreak();
     });
 
 
