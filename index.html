@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Urdu Editor: Mobile Fixed Height</title>
+    <title>Urdu Editor: Spaced Toolbar</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,8 @@
 
         :root {
             --bg-color: #f0f2f5;
-            --toolbar-bg: #ffffff;
+            --header-bg: #ffffff;
+            --secondary-bg: #e9ecef;
             --editor-bg: #ffffff;
             --key-bg: #ffffff;
             --primary-color: #5d98bc;
@@ -38,87 +39,121 @@
             overflow: hidden; 
         }
 
-        /* --- HEADER / TOOLBARS --- */
+        /* --- 1. MAIN HEADER (Title + File Ops) --- */
         header {
-            background: var(--toolbar-bg);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: var(--header-bg);
+            border-bottom: 1px solid #ddd;
             z-index: 10;
             flex-shrink: 0;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         h2 {
-            text-align: center;
             color: #1a5276;
             font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
-            margin: 10px 0 5px 0;
-            font-size: 1.2rem;
+            margin: 0;
+            font-size: 1.1rem;
         }
 
-        #toolbars-wrapper {
+        .file-actions {
             display: flex;
-            overflow-x: auto;
-            padding: 5px 10px;
-            gap: 10px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+            gap: 8px;
         }
-        #toolbars-wrapper::-webkit-scrollbar { display: none; } 
+
+        /* --- 2. SECONDARY TOOLBAR (Formatting) --- */
+        #secondary-toolbar {
+            /* --- ADDED BREAK HERE --- */
+            margin-top: 10px; 
+            /* ------------------------ */
+            
+            background-color: var(--secondary-bg);
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 5px;
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 6px;
+            flex-shrink: 0;
+        }
 
         .toolbar-group {
             display: flex;
-            gap: 5px;
-            flex-shrink: 0;
             align-items: center;
-            border-right: 1px solid #eee;
-            padding-right: 10px;
+            gap: 3px;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 4px 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .toolbar-group:last-child { border-right: none; }
 
         .tool-btn, .format-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            flex-shrink: 0;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tool-btn:active, .format-btn:active {
+            transform: scale(0.95);
+            filter: brightness(0.9);
+        }
+
+        .file-btn {
+            background-color: #1a5276;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
         }
         
         #font-size-select {
-            padding: 6px;
-            border-radius: 4px;
+            padding: 4px;
+            border-radius: 3px;
             border: 1px solid #ccc;
             background: white;
+            font-size: 12px;
+            height: 28px;
         }
         #color-picker {
-            height: 30px; width: 30px;
+            height: 28px; width: 28px;
             border: none; background: none;
             padding: 0;
+            cursor: pointer;
         }
 
         /* --- EDITOR AREA --- */
         #editor-container {
-            /* This container holds the fixed height editor */
             flex-grow: 1;
-            padding: 20px 15px;
+            padding: 10px;
             background-color: #eef1f3;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Aligns editor to top */
+            align-items: flex-start; 
         }
 
         #document-editor {
             width: 100%;
             max-width: 800px;
-            
-            /* --- FIXED HEIGHT SCROLL SETTINGS --- */
-            height: 250px;        /* Exact height request */
-            overflow-y: auto;     /* Vertical scroll */
-            /* ------------------------------------ */
-
+            height: 250px;       
+            overflow-y: auto;    
             background-color: var(--editor-bg);
             padding: 15px; 
-            border: 1px solid #ccc; /* Added border to visualize the box */
+            border: 1px solid #ccc; 
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             direction: rtl; text-align: right;
@@ -148,7 +183,6 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 2px;
-            /* Keyboard takes remaining space comfortably, or scrolls if needed */
             max-height: 45vh; 
             overflow-y: auto;
             flex-shrink: 0;
@@ -163,7 +197,7 @@
             font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif;
             font-size: 18px;
             flex: 1 0 11%; 
-            height: 45px;
+            height: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -178,43 +212,22 @@
         
         @media (max-width: 350px) { .urdu-key span { display: none; } }
 
-        /* --- PRINT / PDF STYLES (CRITICAL FOR A4) --- */
+        /* --- PRINT / PDF STYLES --- */
         @media print {
-            body { 
-                display: block; 
-                height: auto; 
-                overflow: visible; 
-                background: white; 
-                margin: 0;
-            }
-            
-            /* Hide UI elements */
-            header, #keyboard-container, #toolbars-wrapper { 
-                display: none !important; 
-            }
-
-            #editor-container { 
-                padding: 0; 
-                margin: 0; 
-                background: white; 
-                display: block;
-            }
-
-            /* Force Editor to behave like A4 paper */
+            body { display: block; height: auto; overflow: visible; background: white; margin: 0; }
+            header, #secondary-toolbar, #keyboard-container { display: none !important; }
+            #editor-container { padding: 0; margin: 0; background: white; display: block; }
             #document-editor {
-                height: auto !important;       /* Override the 250px limit */
-                overflow: visible !important;  /* Remove scrollbars */
-                width: 210mm !important;       /* A4 Width */
-                min-height: 297mm !important;  /* A4 Height */
+                height: auto !important;
+                overflow: visible !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 2cm !important;       /* Standard print margins */
+                padding: 2cm !important;
                 margin: 0 auto !important;
             }
-            
-            #document-editor::after {
-                font-size: 120px; /* Make watermark big for A4 */
-            }
+            #document-editor::after { font-size: 120px; }
         }
     </style>
 </head>
@@ -222,30 +235,33 @@
 
     <header>
         <h2>اردو ایڈیٹر</h2>
-        <div id="toolbars-wrapper">
-            <div class="toolbar-group">
-                <button class="tool-btn" onclick="createNewDocument()">📄 New</button>
-                <button class="tool-btn" onclick="saveDocument()">💾 Save</button>
-                <button class="tool-btn" id="pdf-btn" onclick="saveToPdf()">🖨️ PDF</button>
-                <span id="save-status" style="font-size:10px; color:green;"></span>
-            </div>
-            <div class="toolbar-group">
-                <button class="format-btn" onclick="formatDoc('bold')"><b>B</b></button>
-                <select id="font-size-select"><option value="" disabled selected>Size</option></select>
-                <input type="color" id="color-picker" value="#333333">
-            </div>
-            <div class="toolbar-group">
-                <button class="format-btn" onclick="formatDoc('justifyRight')">➡️</button>
-                <button class="format-btn" onclick="formatDoc('justifyCenter')">━</button>
-                <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️</button>
-            </div>
-            <div class="toolbar-group">
-                <button class="tool-btn" onclick="insertImage()">🖼️ Img</button>
-                <button class="tool-btn" onclick="insertTable()">📅 Tbl</button>
-                <button class="tool-btn" onclick="setWatermark()">© WM</button>
-            </div>
+        <div class="file-actions">
+            <span id="save-status" style="font-size:10px; color:green; margin-right:5px; align-self:center;"></span>
+            <button class="file-btn" onclick="createNewDocument()">📄 New</button>
+            <button class="file-btn" onclick="saveDocument()">💾 Save</button>
+            <button class="file-btn" id="pdf-btn" onclick="saveToPdf()">🖨️ PDF</button>
         </div>
     </header>
+    
+    <div id="secondary-toolbar">
+        <div class="toolbar-group">
+            <button class="format-btn" onclick="formatDoc('bold')"><b>B</b></button>
+            <select id="font-size-select"><option value="" disabled selected>Size</option></select>
+            <input type="color" id="color-picker" value="#333333">
+        </div>
+        
+        <div class="toolbar-group">
+            <button class="format-btn" onclick="formatDoc('justifyRight')">➡️</button>
+            <button class="format-btn" onclick="formatDoc('justifyCenter')">━</button>
+            <button class="format-btn" onclick="formatDoc('justifyLeft')">⬅️</button>
+        </div>
+        
+        <div class="toolbar-group">
+            <button class="tool-btn" onclick="insertImage()">🖼️ Img</button>
+            <button class="tool-btn" onclick="insertTable()">📅 Tbl</button>
+            <button class="tool-btn" onclick="setWatermark()">© WM</button>
+        </div>
+    </div>
     
     <div id="editor-container">
         <div id="document-editor" contenteditable="true" dir="rtl" placeholder="یہاں لکھیں..." data-watermark=""></div>
@@ -316,9 +332,8 @@
     const editor = document.getElementById('document-editor');
     const keys = document.querySelectorAll('.urdu-key');
     const statusLabel = document.getElementById('save-status');
-    const STORAGE_KEY = 'urdu_editor_mobile_v3'; 
+    const STORAGE_KEY = 'urdu_editor_spaced_v6'; 
 
-    // --- Phonetic Map ---
     const phoneticMap = {
         'a': 'ا', 'b': 'ب', 'p': 'پ', 't': 'ت', 'j': 'ج', 'c': 'چ', 'H': 'ح', 
         'k': 'ک', 'g': 'گ', 'l': 'ل', 'm': 'م', 'n': 'ن', 'd': 'د', 'r': 'ر', 
@@ -331,7 +346,6 @@
         '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'
     };
 
-    // --- Keyboard Logic ---
     keys.forEach(key => {
         key.addEventListener('click', (e) => {
             e.preventDefault();
@@ -354,26 +368,21 @@
         } else if (phoneticMap.hasOwnProperty(key)) {
             urduChar = phoneticMap[key];
         }
-
         if (urduChar !== null && key.length === 1 && !event.ctrlKey && !event.altKey) {
             event.preventDefault(); 
             document.execCommand('insertText', false, urduChar);
         }
     });
 
-    // --- Save/Load ---
     window.addEventListener('load', () => {
         initDropdowns();
         const savedContent = localStorage.getItem(STORAGE_KEY);
         const savedWatermark = localStorage.getItem(STORAGE_KEY + '_wm');
-        
         if (savedContent && savedContent.trim() !== "") {
             editor.innerHTML = savedContent;
             statusLabel.textContent = "✓ Loaded";
         }
-        if (savedWatermark) {
-            editor.setAttribute('data-watermark', savedWatermark);
-        }
+        if (savedWatermark) editor.setAttribute('data-watermark', savedWatermark);
     });
 
     function triggerInputEvent() {
@@ -381,14 +390,10 @@
         localStorage.setItem(STORAGE_KEY + '_wm', editor.getAttribute('data-watermark') || "");
         statusLabel.textContent = "Saving...";
         clearTimeout(window.saveTimer);
-        window.saveTimer = setTimeout(() => {
-            statusLabel.textContent = "✓ Saved";
-        }, 800);
+        window.saveTimer = setTimeout(() => { statusLabel.textContent = "✓ Saved"; }, 800);
     }
-
     editor.addEventListener('input', triggerInputEvent);
 
-    // --- Tools ---
     function createNewDocument() {
         if (confirm("Start new document?")) {
             editor.innerHTML = "";
@@ -402,10 +407,7 @@
     function setWatermark() {
         const current = editor.getAttribute('data-watermark') || "";
         const text = prompt("Watermark Text:", current);
-        if (text !== null) {
-            editor.setAttribute('data-watermark', text);
-            triggerInputEvent();
-        }
+        if (text !== null) { editor.setAttribute('data-watermark', text); triggerInputEvent(); }
     }
 
     function formatDoc(command, value = null) {
@@ -477,11 +479,7 @@
         a.click();
     }
 
-    function saveToPdf() {
-        // Trigger the browser's print functionality, 
-        // handled by @media print in CSS
-        window.print();
-    }
+    function saveToPdf() { window.print(); }
 </script>
 </body>
 </html>
